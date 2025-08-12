@@ -14,6 +14,8 @@
 #include <logging/sbp_file_logger.h>
 #include <utils/utils.h>
 #include <cstdlib>
+#include <cstdio>
+#include <array>
 #include <ctime>
 #include <filesystem>
 #include <iostream>
