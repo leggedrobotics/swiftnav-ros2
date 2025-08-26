@@ -5,7 +5,7 @@ swiftnav_ros2_driver:
     interface: 1 # 1: TCP Client, 2: Serial, 3: File
 
     # TCP Client (interface: 1)
-    host_ip: "192.168.0.222"
+    host_ip: "192.168.123.160"
     host_port: 55556
     read_timeout: 2000  # [ms]
     write_timeout: 2000 # [ms]
