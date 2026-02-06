@@ -17,16 +17,23 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-  launch_desc = LaunchDescription()
-  config = os.path.join(get_package_share_directory('swiftnav_ros2_driver'),
-                        'config',
-                        'settings.yaml'
-                        )
+  config = os.path.join(
+    get_package_share_directory('swiftnav_ros2_driver'), 'config', 'settings.yaml'
+  )
+
   node = Node(
       package='swiftnav_ros2_driver',
       executable='sbp-to-ros',
       parameters=[config]
   )
 
-  launch_desc.add_action(node)
-  return launch_desc
+  static_tf_node = Node(
+      package="tf2_ros",
+      executable="static_transform_publisher",
+      output="screen",
+      arguments=["-0.49", "0.0", "0.14", "0", "0", "0", "lidar", "gnss"],
+  )
+
+  return LaunchDescription(
+    [static_tf_node, node]
+  )
