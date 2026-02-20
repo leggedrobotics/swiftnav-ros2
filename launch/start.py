@@ -31,7 +31,11 @@ def generate_launch_description():
       package="tf2_ros",
       executable="static_transform_publisher",
       output="screen",
-      arguments=["-0.49", "0.0", "0.14", "0", "0", "0", "lidar", "gnss"],
+      arguments=[
+        "-0.474058071650", "0.000070000548", "0.144529644013",
+        "0", "0", "0",
+        "lidar", "gnss",
+    ],
   )
 
   return LaunchDescription(
