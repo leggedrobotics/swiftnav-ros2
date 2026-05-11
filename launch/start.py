@@ -32,7 +32,8 @@ def generate_launch_description():
       executable="static_transform_publisher",
       output="screen",
       arguments=[
-        "-0.474058071650", "0.000070000548", "0.144529644013",
+        # "-0.474058071650", "0.000070000548", "0.144529644013",  # Orin-only mount
+        "-0.525158071647", "0.001070000548", "0.144529644013",  # Thor mount
         "0", "0", "0",
         "lidar", "gnss",
     ],
