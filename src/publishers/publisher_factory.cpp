@@ -47,7 +47,8 @@ static const PublisherMap publishers[] = {
 PublisherPtr publisherFactory(const std::string& pub_type, sbp::State* state,
                               rclcpp::Node* node, const LoggerPtr& logger,
                               const std::string& frame,
-                              const std::shared_ptr<Config>& config) {
+                              const std::shared_ptr<Config>& config,
+                              const GnssRouterPtr& gnss_router) {
   PublisherPtr pub;
   Publishers pub_id = Publishers::Invalid;
   std::string_view topic;
@@ -72,7 +73,7 @@ PublisherPtr publisherFactory(const std::string& pub_type, sbp::State* state,
 
     case Publishers::NavSatFix:
       pub = std::make_shared<NavSatFixPublisher>(state, topic, node, logger,
-                                                 frame, config);
+                                                 frame, config, gnss_router);
       break;
 
     case Publishers::TwistWithCovarianceStamped:

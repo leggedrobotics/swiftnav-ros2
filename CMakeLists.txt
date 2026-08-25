@@ -13,6 +13,7 @@ find_package(rosidl_default_generators REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(gps_msgs REQUIRED)
@@ -71,6 +72,7 @@ target_compile_features(sbp-to-ros PUBLIC c_std_99 cxx_std_17)
 ament_target_dependencies(sbp-to-ros
   rclcpp
   sensor_msgs
+  std_srvs
   geometry_msgs
   nav_msgs
   gps_msgs

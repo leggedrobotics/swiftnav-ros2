@@ -20,6 +20,13 @@ swiftnav_ros2_driver:
     # ROS2 Frame Name
     frame_name: "swiftnav-gnss"
 
+    # Simulated GNSS Outage
+    # `~/simulate_gnss_outage` (std_srvs/SetBool) suppresses /navsatfix and publishes the
+    # same fixes here instead, so a mission can be flown "without GNSS" while a bag still
+    # records the truth. Replaces physically unplugging the antenna.
+    gnss_ground_truth_topic: "navsatfix_ground_truth"
+    start_with_gnss_outage: false
+
     # Topic Publication Time Stamp Source
     timestamp_source_gnss: False # True: use GNSS receiver reported time (default), False: use current platfrom time
 

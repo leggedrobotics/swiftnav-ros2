@@ -50,6 +50,10 @@ class Config {
   double getTrackUpdateMinSpeedMps() const {
     return track_update_min_speed_mps_;
   }
+  std::string getGnssGroundTruthTopic() const {
+    return gnss_ground_truth_topic_;
+  }
+  bool getStartWithGnssOutage() const { return start_with_gnss_outage_; }
 
  private:
   /**
@@ -67,6 +71,9 @@ class Config {
   void loadParameters(rclcpp::Node* node);
 
   std::string frame_;
+  std::string gnss_ground_truth_topic_; /** @brief Topic carrying the true GNSS fix while a
+                                           simulated outage suppresses the normal one */
+  bool start_with_gnss_outage_; /** @brief Start with the simulated outage engaged */
   bool log_sbp_messages_; /** @brief Flag to enable/disable SBP messages logging
                            */
   std::string
