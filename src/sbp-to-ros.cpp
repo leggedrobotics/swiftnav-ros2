@@ -27,6 +27,8 @@
 #include <publishers/publisher_manager.h>
 
 #include <data_sources/sbp_data_sources.h>
+#include <publishers/gnss_router.h>
+#include <std_srvs/srv/set_bool.hpp>
 #include <utils/config.h>
 #include <utils/utils.h>
 
@@ -49,7 +51,11 @@ class SBPROS2DriverNode : public rclcpp::Node {
     if (!data_source_) exit(EXIT_FAILURE);
     state_.set_reader(data_source_.get());
     state_.set_writer(data_source_.get());
+    gnss_router_ = std::make_shared<GnssRouter>(
+        this, config_->getGnssGroundTruthTopic(),
+        config_->getStartWithGnssOutage());
     createPublishers();
+    createGnssOutageService();
 
     sbptoros2_ = std::make_shared<SBPToROS2Logger>(
         &state_, logger_, config_->getLogSBPMessages(), config_->getLogPath());
@@ -99,9 +105,39 @@ class SBPROS2DriverNode : public rclcpp::Node {
     LOG_INFO(logger_, "Creating %u publishers", publishers.size());
     for (const auto& publisher : publishers) {
       LOG_INFO(logger_, "Adding publisher %s", publisher.c_str());
-      pubs_manager_.add(
-          publisherFactory(publisher, &state_, this, logger_, frame, config_));
+      pubs_manager_.add(publisherFactory(publisher, &state_, this, logger_,
+                                         frame, config_, gnss_router_));
     }
+  }
+
+  /**
+   * @brief Exposes ~/simulate_gnss_outage, replacing physically unplugging the antenna.
+   *
+   * While engaged, /navsatfix is silent and the same fixes go to the ground-truth topic,
+   * so a mission can be flown "without GNSS" while the bag still records the truth.
+   */
+  void createGnssOutageService() {
+    gnss_outage_service_ = this->create_service<std_srvs::srv::SetBool>(
+        "~/simulate_gnss_outage",
+        [this](const std::shared_ptr<std_srvs::srv::SetBool::Request> request,
+               std::shared_ptr<std_srvs::srv::SetBool::Response> response) {
+          gnss_router_->setOutage(request->data);
+          const std::string gt_topic = config_->getGnssGroundTruthTopic();
+          response->success = true;
+          response->message =
+              request->data
+                  ? "GNSS outage ENGAGED: /navsatfix suppressed, fixes on " +
+                        gt_topic
+                  : "GNSS outage CLEARED: fixes on /navsatfix";
+          // Logged so /rosout carries the exact moment of the cut, which is a second,
+          // independent marker for the offline video even if the ground-truth topic is
+          // missed by the recorder.
+          RCLCPP_INFO(this->get_logger(), "%s", response->message.c_str());
+        });
+    RCLCPP_INFO(this->get_logger(),
+                "GNSS outage service ready; ground truth topic: %s (outage %s)",
+                config_->getGnssGroundTruthTopic().c_str(),
+                gnss_router_->inOutage() ? "ENGAGED" : "cleared");
   }
 
   sbp::State state_;           /** @brief SBP state object */
@@ -114,6 +150,9 @@ class SBPROS2DriverNode : public rclcpp::Node {
       pubs_manager_; /** @brief Manager for all the active publishers */
   std::shared_ptr<SBPToROS2Logger>
       sbptoros2_; /** @brief SBP to ROS2 logging object */
+  GnssRouterPtr gnss_router_; /** @brief Routes NavSatFix during a simulated outage */
+  rclcpp::Service<std_srvs::srv::SetBool>::SharedPtr
+      gnss_outage_service_; /** @brief ~/simulate_gnss_outage */
 };
 
 int main(int argc, char** argv) {

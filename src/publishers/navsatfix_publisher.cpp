@@ -68,11 +68,13 @@ NavSatFixPublisher::NavSatFixPublisher(sbp::State* state,
                                        rclcpp::Node* node,
                                        const LoggerPtr& logger,
                                        const std::string& frame,
-                                       const std::shared_ptr<Config>& config)
+                                       const std::shared_ptr<Config>& config,
+                                       const GnssRouterPtr& gnss_router)
     : SBP2ROS2Publisher<sensor_msgs::msg::NavSatFix,
                         sbp_msg_measurement_state_t, sbp_msg_utc_time_t,
                         sbp_msg_pos_llh_cov_t>(state, topic_name, node, logger,
-                                               frame, config) {}
+                                               frame, config),
+      gnss_router_(gnss_router) {}
 
 void NavSatFixPublisher::handle_sbp_msg(
     uint16_t sender_id, const sbp_msg_measurement_state_t& msg) {
@@ -240,7 +242,14 @@ void NavSatFixPublisher::publish() {
 
     msg_.header.frame_id = frame_;
 
-    publisher_->publish(msg_);
+    // A simulated outage must look exactly like an unplugged antenna to every subscriber:
+    // the normal topic goes silent rather than carrying a zeroed or error-status message,
+    // because holistic_fusion and lodia_path_manager both key on the absence of messages.
+    if (gnss_router_ && gnss_router_->inOutage()) {
+      gnss_router_->publishGroundTruth(msg_);
+    } else {
+      publisher_->publish(msg_);
+    }
 
     msg_ = sensor_msgs::msg::NavSatFix();
     last_received_utc_time_tow = -1;

@@ -35,6 +35,9 @@ void Config::declareParameters(rclcpp::Node* node) {
   node->declare_parameter<double>("baseline_dir_offset_deg", 0.0);
   node->declare_parameter<double>("baseline_dip_offset_deg", 0.0);
   node->declare_parameter<double>("track_update_min_speed_mps", 0.2);
+  node->declare_parameter<std::string>("gnss_ground_truth_topic",
+                                       "navsatfix_ground_truth");
+  node->declare_parameter<bool>("start_with_gnss_outage", false);
 }
 
 void Config::loadParameters(rclcpp::Node* node) {
@@ -58,4 +61,7 @@ void Config::loadParameters(rclcpp::Node* node) {
                               baseline_dip_offset_deg_);
   node->get_parameter<double>("track_update_min_speed_mps",
                               track_update_min_speed_mps_);
+  node->get_parameter<std::string>("gnss_ground_truth_topic",
+                                   gnss_ground_truth_topic_);
+  node->get_parameter<bool>("start_with_gnss_outage", start_with_gnss_outage_);
 }

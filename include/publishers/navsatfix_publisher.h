@@ -19,6 +19,7 @@
 #include <libsbp/cpp/state.h>
 
 #include <publishers/base_publisher.h>
+#include <publishers/gnss_router.h>
 #include <publishers/sbp2ros2_publisher.h>
 
 /**
@@ -44,7 +45,8 @@ class NavSatFixPublisher
   NavSatFixPublisher(sbp::State* state, const std::string_view topic_name,
                      rclcpp::Node* node, const LoggerPtr& logger,
                      const std::string& frame,
-                     const std::shared_ptr<Config>& config);
+                     const std::shared_ptr<Config>& config,
+                     const GnssRouterPtr& gnss_router);
 
   /**
    * @brief Handles a sbp_msg_measurement_state_t message. It gets the
@@ -87,4 +89,6 @@ class NavSatFixPublisher
   uint32_t last_received_pos_llh_cov_tow = -2;
 
   uint16_t status_service;
+
+  GnssRouterPtr gnss_router_; /** @brief Reroutes the fix during a simulated outage */
 };

@@ -15,6 +15,7 @@
 #include <libsbp/cpp/state.h>
 #include <logging/issue_logger.h>
 #include <publishers/base_publisher.h>
+#include <publishers/gnss_router.h>
 #include <utils/config.h>
 #include <rclcpp/rclcpp.hpp>
 #include <string>
@@ -29,9 +30,13 @@
  * @param frame frame is the frame of reference reported by the satellite
  * receiver, usually the location of the antenna. This is a Euclidean frame
  * relative to the vehicle, not a reference ellipsoid.
+ * @param gnss_router Routes NavSatFix to the ground-truth topic during a simulated
+ * outage. Only the NavSatFix publisher uses it; /navsatfix is the sole swiftnav topic
+ * the rest of the stack consumes.
  * @return Newly created publisher
  */
 PublisherPtr publisherFactory(const std::string& pub_type, sbp::State* state,
                               rclcpp::Node* node, const LoggerPtr& logger,
                               const std::string& frame,
-                              const std::shared_ptr<Config>& config);
+                              const std::shared_ptr<Config>& config,
+                              const GnssRouterPtr& gnss_router);
